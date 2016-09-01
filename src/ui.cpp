@@ -321,7 +321,7 @@ protected:
 WinSparkleDialog::WinSparkleDialog()
     : wxDialog(NULL, wxID_ANY, _("Software Update"),
                wxDefaultPosition, wxDefaultSize,
-               wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER | wxDIALOG_NO_PARENT)
+               wxCAPTION | wxRESIZE_BORDER | wxDIALOG_NO_PARENT)
 {
     wxSize dpi = wxClientDC(this).GetPPI();
     m_scaleFactor = dpi.y / 96.0;
@@ -739,6 +739,7 @@ void UpdateDialog::StateCheckingUpdates()
     HIDE(m_runInstallerButtonSizer);
     HIDE(m_releaseNotesSizer);
     HIDE(m_updateButtonsSizer);
+	HIDE(m_closeButton);
     MakeResizable(false);
 }
 
