@@ -317,6 +317,15 @@ WIN_SPARKLE_API void __cdecl win_sparkle_set_update_cancelled_callback(win_spark
     CATCH_ALL_EXCEPTIONS
 }
 
+WIN_SPARKLE_API void __cdecl win_sparkle_set_download_completed_callback(win_sparkle_download_completed_callback_t callback)
+{
+    try
+    {
+        ApplicationController::SetDownloadCompletedCallback(callback);
+    }
+    CATCH_ALL_EXCEPTIONS
+}
+
 /*--------------------------------------------------------------------------*
                               Manual usage
  *--------------------------------------------------------------------------*/
@@ -360,6 +369,21 @@ WIN_SPARKLE_API void __cdecl win_sparkle_check_update_without_ui()
     }
     CATCH_ALL_EXCEPTIONS
 }
+
+WIN_SPARKLE_API void __cdecl win_sparkle_check_update_download_automatically()
+{
+    try
+    {
+		UI::ShowCheckingUpdates();
+
+        // Run the check in background. Only show UI if updates
+        // are available.
+        UpdateChecker *check = new ManualAutoDownloadUpdateChecker();
+        check->Start();
+    }
+    CATCH_ALL_EXCEPTIONS
+}
+
 
 
 } // extern "C"

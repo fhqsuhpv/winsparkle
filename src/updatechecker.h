@@ -69,6 +69,8 @@ protected:
     /// Should we install the update or prompt the user for options first?
     virtual bool ShouldAutomaticallyInstall() const { return false; }
 
+	virtual bool ShouldAutomaticallyDownload() const { return false; }
+
 protected:
     virtual void Run();
     virtual bool IsJoinable() const { return false; }
@@ -100,9 +102,20 @@ public:
     ManualAutoInstallUpdateChecker() : ManualUpdateChecker() {}
 
 protected:
+    virtual bool ShouldAutomaticallyDownload() const { return true; };
     virtual bool ShouldAutomaticallyInstall() const { return true; };
 };
 
+class ManualAutoDownloadUpdateChecker : public ManualUpdateChecker
+{
+public:
+    /// Creates checker thread.
+    ManualAutoDownloadUpdateChecker() : ManualUpdateChecker() {}
+
+protected:
+    virtual bool ShouldAutomaticallyDownload() const { return true; };
+    virtual bool ShouldAutomaticallyInstall() const { return false; };
+};
 
 } // namespace winsparkle
 

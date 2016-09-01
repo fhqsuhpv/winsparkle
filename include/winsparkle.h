@@ -378,6 +378,10 @@ typedef void (__cdecl *win_sparkle_update_cancelled_callback_t)();
 */
 WIN_SPARKLE_API void __cdecl win_sparkle_set_update_cancelled_callback(win_sparkle_update_cancelled_callback_t callback);
 
+typedef void (__cdecl *win_sparkle_download_completed_callback_t)(const wchar_t *);
+WIN_SPARKLE_API void __cdecl win_sparkle_set_download_completed_callback(win_sparkle_download_completed_callback_t callback);
+
+
 //@}
 
 
@@ -451,6 +455,8 @@ WIN_SPARKLE_API void __cdecl win_sparkle_check_update_with_ui_and_install();
     @see win_sparkle_check_update_with_ui()
 */
 WIN_SPARKLE_API void __cdecl win_sparkle_check_update_without_ui();
+
+WIN_SPARKLE_API void __cdecl win_sparkle_check_update_download_automatically();
 
 //@}
 

@@ -156,6 +156,7 @@ struct EventPayload
     size_t       sizeDownloaded, sizeTotal;
     std::wstring updateFile;
     bool         installAutomatically;
+	bool		 downloadAutomatically;
 };
 
 
@@ -421,7 +422,7 @@ public:
     // change state into "update error"
     void StateUpdateError();
     // change state into "a new version is available"
-    void StateUpdateAvailable(const Appcast& info, bool installAutomatically);
+    void StateUpdateAvailable(const Appcast& info, bool downloadAutomatically, bool installAutomatically);
     // change state into "downloading update"
     void StateDownloading();
     // update download progress
@@ -474,6 +475,7 @@ private:
     UpdateDownloader* m_downloader;
     // whether the update should be installed without prompting the user
     bool m_installAutomatically;
+	bool m_downloadAutomatically;
     // whether an error occurred (used to properly call NotifyUpdateCancelled)
     bool m_errorOccurred;
 
@@ -815,12 +817,13 @@ void UpdateDialog::StateUpdateError()
 
 
 
-void UpdateDialog::StateUpdateAvailable(const Appcast& info, bool installAutomatically)
+void UpdateDialog::StateUpdateAvailable(const Appcast& info, bool downloadAutomatically, bool installAutomatically)
 {
     m_appcast = info;
     m_installAutomatically = installAutomatically;
+	m_downloadAutomatically = downloadAutomatically;
 
-    if ( installAutomatically )
+    if ( downloadAutomatically )
     {
         wxCommandEvent nullEvent;
         OnInstall(nullEvent);
@@ -941,12 +944,19 @@ void UpdateDialog::StateUpdateDownloaded(const std::wstring& updateFile, const s
     m_updateFile = updateFile;
     m_installerArguments = installerArguments;
 
+	ApplicationController::NotifyDownloadCompleted(m_updateFile.t_str());
+
     if ( m_installAutomatically )
     {
         wxCommandEvent nullEvent;
         OnRunInstaller(nullEvent);
         return;
     }
+
+	if (m_downloadAutomatically)
+	{
+		Close();
+	}
 
     LayoutChangesGuard guard(this);
 
@@ -1367,7 +1377,7 @@ void App::OnUpdateAvailable(wxThreadEvent& event)
     InitWindow();
 
     EventPayload payload(event.GetPayload<EventPayload>());
-    m_win->StateUpdateAvailable(payload.appcast, payload.installAutomatically);
+	m_win->StateUpdateAvailable(payload.appcast, payload.downloadAutomatically, payload.installAutomatically);
 
     ShowWindow();
 }
@@ -1508,7 +1518,7 @@ void UI::NotifyNoUpdates(bool installAutomatically)
 
 
 /*static*/
-void UI::NotifyUpdateAvailable(const Appcast& info, bool installAutomatically)
+void UI::NotifyUpdateAvailable(const Appcast& info, bool downloadAutomatically, bool installAutomatically)
 {
     ApplicationController::NotifyUpdateFound();
 
@@ -1516,6 +1526,7 @@ void UI::NotifyUpdateAvailable(const Appcast& info, bool installAutomatically)
     EventPayload payload;
     payload.appcast = info;
     payload.installAutomatically = installAutomatically;
+	payload.downloadAutomatically = downloadAutomatically;
     uit.App().SendMsg(MSG_UPDATE_AVAILABLE, &payload);
 }
 

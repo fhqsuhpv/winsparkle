@@ -69,6 +69,8 @@ public:
     /// Notify that an update was cancelled.
     static void NotifyUpdateCancelled();
 
+	static void NotifyDownloadCompleted(const wchar_t *);
+
     //@}
 
     /**
@@ -118,6 +120,12 @@ public:
         ms_cbUpdateCancelled = callback;
     }
 
+	static void SetDownloadCompletedCallback(win_sparkle_download_completed_callback_t callback)
+    {
+        CriticalSectionLocker lock(ms_csVars);
+        ms_cbDownloadCompleted = callback;
+    }
+
     //@}
 
 private:
@@ -132,6 +140,7 @@ private:
     static win_sparkle_did_find_update_callback_t     ms_cbDidFindUpdate;
     static win_sparkle_did_not_find_update_callback_t ms_cbDidNotFindUpdate;
     static win_sparkle_update_cancelled_callback_t    ms_cbUpdateCancelled;
+	static win_sparkle_download_completed_callback_t  ms_cbDownloadCompleted;
 };
 
 } // namespace winsparkle

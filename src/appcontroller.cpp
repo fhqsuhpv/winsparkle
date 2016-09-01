@@ -37,6 +37,7 @@ win_sparkle_shutdown_request_callback_t    ApplicationController::ms_cbRequestSh
 win_sparkle_did_find_update_callback_t     ApplicationController::ms_cbDidFindUpdate = NULL;
 win_sparkle_did_not_find_update_callback_t ApplicationController::ms_cbDidNotFindUpdate = NULL;
 win_sparkle_update_cancelled_callback_t    ApplicationController::ms_cbUpdateCancelled = NULL;
+win_sparkle_download_completed_callback_t  ApplicationController::ms_cbDownloadCompleted = NULL;
 
 bool ApplicationController::IsReadyToShutdown()
 {
@@ -110,6 +111,18 @@ void ApplicationController::NotifyUpdateCancelled()
         if ( ms_cbUpdateCancelled )
         {
             (*ms_cbUpdateCancelled)();
+            return;
+        }
+    }
+}
+
+void ApplicationController::NotifyDownloadCompleted(const wchar_t* path)
+{
+    {
+        CriticalSectionLocker lock(ms_csVars);
+        if ( ms_cbDownloadCompleted )
+        {
+            (*ms_cbDownloadCompleted)(path);
             return;
         }
     }
