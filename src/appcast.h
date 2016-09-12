@@ -76,7 +76,7 @@ struct Appcast
 
         @param xml Appcast feed data.
      */
-    static Appcast Load(const std::string& xml);
+    static Appcast Load(const std::string& xml, const std::string& currentVersion);
 
     /// Returns true if the struct constains valid data.
     bool IsValid() const { return !Version.empty(); }

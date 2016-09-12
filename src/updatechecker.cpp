@@ -232,16 +232,16 @@ void UpdateChecker::Run()
         StringDownloadSink appcast_xml;
         DownloadFile(url, &appcast_xml, this, GetAppcastDownloadFlags());
 
-        Appcast appcast = Appcast::Load(appcast_xml.data);
+        const std::string currentVersion =
+                WideToAnsi(Settings::GetAppBuildVersion());
+
+		Appcast appcast = Appcast::Load(appcast_xml.data, currentVersion);
         if (!appcast.ReleaseNotesURL.empty())
             CheckForInsecureURL(appcast.ReleaseNotesURL, "release notes");
         if (!appcast.DownloadURL.empty())
             CheckForInsecureURL(appcast.DownloadURL, "update file");
 
         Settings::WriteConfigValue("LastCheckTime", time(NULL));
-
-        const std::string currentVersion =
-                WideToAnsi(Settings::GetAppBuildVersion());
 
         // Check if our version is out of date.
         if ( !appcast.IsValid() || CompareVersions(currentVersion, appcast.Version) >= 0 )

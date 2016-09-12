@@ -31,6 +31,8 @@
 #include <algorithm>
 #include <windows.h>
 
+#include "updatechecker.h"
+
 namespace winsparkle
 {
 
@@ -273,12 +275,27 @@ void XMLCALL OnText(void *data, const char *s, int len)
 
 } // anonymous namespace
 
+bool compare_appcast_item(const Appcast& item1, const Appcast &item2)
+{
+	return UpdateChecker::CompareVersions(item1.Version, item2.Version) < 0;
+}
+
+struct is_not_larger_than_current_version : public std::unary_function<const std::string&, bool>
+{
+	const std::string& currentVersion;
+	is_not_larger_than_current_version(const std::string& value) : currentVersion(value) { }
+
+	bool operator()(const Appcast& item) const
+	{
+		return UpdateChecker::CompareVersions(item.Version, currentVersion) <= 0;
+	}
+};
 
 /*--------------------------------------------------------------------------*
                                Appcast class
  *--------------------------------------------------------------------------*/
 
-Appcast Appcast::Load(const std::string& xml)
+Appcast Appcast::Load(const std::string& xml, const std::string& currentVersion)
 {
     XML_Parser p = XML_ParserCreateNS(NULL, NS_SEP);
     if ( !p )
@@ -304,6 +321,13 @@ Appcast Appcast::Load(const std::string& xml)
 
     if (ctxt.items.empty())
         return Appcast(); // invalid
+
+	/*
+	 * Sort and filter out all items with equal or less version
+	 */
+	std::sort(ctxt.items.begin(), ctxt.items.end(), compare_appcast_item);
+	is_not_larger_than_current_version compare_operator(currentVersion);
+	ctxt.items.erase(std::remove_if(ctxt.items.begin(), ctxt.items.end(), compare_operator), ctxt.items.end());
 
     /*
      * Search for first <item> which specifies with the attribute sparkle:os set to "windows"
